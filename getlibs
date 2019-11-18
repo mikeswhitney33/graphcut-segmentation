@@ -1,0 +1,9 @@
+#!/bin/bash
+
+mkdir lib
+git clone https://github.com/vmorariu/figtree
+cd figtree
+make
+mv lib/* ../lib/
+cd ..
+rm -rf figtree

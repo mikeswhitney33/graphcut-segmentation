@@ -1,0 +1,5 @@
+#!/bin/bash
+
+source env/bin/activate
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:lib python graphcut-gui.py "$@"
+deactivate
