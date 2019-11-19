@@ -1,4 +1,4 @@
-# graphcut-segmentation
+# Graphcut Segmentation
 Implements Grpahcut segmentation
 
 # Dependencies

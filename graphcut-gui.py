@@ -1,8 +1,11 @@
+import argparse
 import tkinter as tk
 from PIL import Image, ImageTk
 import numpy as np
 from skimage.draw import line, circle
 import maxflow
+
+import graphcut
 
 
 class Slider:
@@ -32,8 +35,8 @@ class GraphcutGUI(object):
         BACK: (0, 0, 255)
     }
 
-    def __init__(self, imname):
-        self.OGimage = np.array(Image.open(imname))
+    def __init__(self, im):
+        self.OGimage = np.array(Image.fromarray(im))
         self.image = self.OGimage.copy()
         self.height, self.width = self.image.shape[:2]
         self.anno = np.zeros((self.height, self.width))
@@ -69,7 +72,7 @@ class GraphcutGUI(object):
         self.lam_scale = Slider(self.slider_frame, "Lambda:", from_=0, to=1, orient=tk.HORIZONTAL, resolution=-1)
         self.lam_scale.pack(side=tk.TOP)
 
-        self.sig_scale = Slider(self.slider_frame, "Sigma:", from_=0, to=1, orient=tk.HORIZONTAL, resolution=-1)
+        self.sig_scale = Slider(self.slider_frame, "Sigma:", from_=0.001, to=1, orient=tk.HORIZONTAL, resolution=-1)
         self.sig_scale.pack(side=tk.TOP)
 
         self.display_image()
@@ -113,8 +116,18 @@ class GraphcutGUI(object):
     def segment(self):
         lam = self.lam_scale.get()
         sig = self.sig_scale.get()
-        print(lam, sig)
+        fore = self.anno == 1
+        back = self.anno == 2
+        seg = graphcut.graphcut(self.OGimage, fore, back, lam, sig)
+        self.image = self.OGimage.copy()
+        self.image[seg == 0] = 0
+        self.display_image()
 
 
 if __name__ == "__main__":
-    GraphcutGUI("teddy.jpg").run()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("imname")
+    args = parser.parse_args()
+    im = np.array(Image.open(args.imname).resize((224, 224)))
+
+    GraphcutGUI(im).run()
